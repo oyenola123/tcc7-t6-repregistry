@@ -72,6 +72,7 @@ model Property {
   ownerPhone      String
   ownerWallet     String
   transactionHash String   @unique
+  metadataHash    String
   documentUrl     String?
   imageUrl        String?
   isVerified      Boolean  @default(true)

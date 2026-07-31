@@ -1,4 +1,5 @@
 export interface PropertyInput {
+  propertyId: string;
   title: string;
   description: string;
   propertyType: string;
@@ -8,5 +9,6 @@ export interface PropertyInput {
   ownerEmail: string;
   ownerPhone: string;
   ownerWallet: string;
+  transactionHash: string;
   metadataHash: string;
 }

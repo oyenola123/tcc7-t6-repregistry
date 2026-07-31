@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
       "Property registered successfully.",
       property
     );
-  } catch  {
-    return errorResponse("Failed to register property.");
-  }
+  } catch (error) {
+  console.log(error);
+  return errorResponse(
+    error instanceof Error ? error.message : "Failed to register property."
+  );
+}
 }
