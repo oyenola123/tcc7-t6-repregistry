@@ -58,3 +58,37 @@ enum Role {
   ADMIN
   USER
 }
+
+model Property {
+  id              String   @id @default(uuid())
+  propertyId      String   @unique
+  title           String
+  propertyType    String
+  description     String?
+  location        String
+  size            Float
+  ownerName       String
+  ownerEmail      String
+  ownerPhone      String
+  ownerWallet     String
+  transactionHash String   @unique
+  metadataHash    String
+  documentUrl     String?
+  imageUrl        String?
+  isVerified      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  transfers PropertyTransfer[]
+}
+
+model PropertyTransfer {
+  id                String   @id @default(uuid())
+  propertyId        String
+  fromWallet        String
+  toWallet          String
+  transactionHash   String   @unique
+  transferredAt     DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [propertyId])
+}

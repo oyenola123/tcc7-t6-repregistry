@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import ProofStorageABI from "../contracts/out/ProofStorage.sol/ProofStorage.json";
+import PropertyRegistryABI from "../contracts/out/PropertyRegistry.sol/PropertyRegistry.json";
 
-export const getProofContract = async() => {
+export const getPropertyRegistryContract = async() => {
     if(typeof window === "undefined") {
         throw new Error("Must be used in browser");
     }
@@ -11,9 +11,9 @@ export const getProofContract = async() => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const contractAddress = process.env.NEXT_PUBLIC_PROOF_ADDRESS;
+    const contractAddress = process.env.NEXT_PUBLIC_PROPERTY_REGISTRY_ADDRESS;
     if(!contractAddress) {
         throw new Error("Contract address not set in .env");
     }
-    return new ethers. Contract (contractAddress, ProofStorageABI.abi, signer);
+    return new ethers. Contract (contractAddress, PropertyRegistryABI.abi, signer);
 };
