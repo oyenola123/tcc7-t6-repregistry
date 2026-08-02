@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import WalletConnect from "@/components/WalletConnect";
+import RegisterPropertyForm from "@/components/RegisterPropertyForm";
 
 const navItems = [
   "Register property",
@@ -51,11 +52,15 @@ export default function Home() {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState({
-    title: "",
-    owner: "",
-    location: "",
-    area: "620 sqm",
-  });
+  propertyId: "",
+  title: "",
+  owner: "",
+  location: "",
+  area: "",
+  propertyType: "0",
+  metadataURI: "",
+});
+
   const [savedProperties, setSavedProperties] = useState<Array<{ id: string; title: string; owner: string; location: string; area: string; status: string }>>([
     {
       id: "demo-1",
@@ -179,6 +184,7 @@ export default function Home() {
             </div>
             <div className="text-xs text-[#9CA79B]">
               <WalletConnect />
+              <RegisterPropertyForm />
             </div>
           </div>
         </aside>
@@ -361,6 +367,21 @@ export default function Home() {
 
             <form className="space-y-4" onSubmit={handleRegisterSubmit}>
               <div>
+  <label className="mb-1 block text-sm text-[#9CA79B]">
+    Property ID
+  </label>
+  <input
+    value={formValues.propertyId}
+    onChange={(event) =>
+      setFormValues((current) => ({
+        ...current,
+        propertyId: event.target.value,
+      }))
+    }
+    className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+    placeholder="e.g. LAG-2026-001"
+  />
+</div>
                 <label className="mb-1 block text-sm text-[#9CA79B]">Property title</label>
                 <input
                   value={formValues.title}
@@ -369,8 +390,27 @@ export default function Home() {
                   }
                   className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
                   placeholder="e.g. Plot 22, Victoria Island"
-                />
-              </div>
+                /><div>
+  <label className="mb-1 block text-sm text-[#9CA79B]">
+    Property Type
+  </label>
+  <select
+    value={formValues.propertyType}
+    onChange={(event) =>
+      setFormValues((current) => ({
+        ...current,
+        propertyType: event.target.value,
+      }))
+    }
+    className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+  >
+    <option value="0">Residential</option>
+    <option value="1">Commercial</option>
+    <option value="2">Industrial</option>
+    <option value="3">Agricultural</option>
+  </select>
+</div>
+            
 
               <div>
                 <label className="mb-1 block text-sm text-[#9CA79B]">Owner name</label>
@@ -407,7 +447,22 @@ export default function Home() {
                   placeholder="620 sqm"
                 />
               </div>
-
+<div>
+  <label className="mb-1 block text-sm text-[#9CA79B]">
+    Metadata URI
+  </label>
+  <input
+    value={formValues.metadataURI}
+    onChange={(event) =>
+      setFormValues((current) => ({
+        ...current,
+        metadataURI: event.target.value,
+      }))
+    }
+    className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+    placeholder="e.g. ipfs://Qm... or https://..."
+  />
+</div>
               <button
                 type="submit"
                 disabled={isSubmitting}
