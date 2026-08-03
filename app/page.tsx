@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import WalletConnect from "@/components/WalletConnect";
 import RegisterPropertyForm from "@/components/RegisterPropertyForm";
+import { getPropertyRegistryContract } from "@/lib/contract";
 
 const navItems = [
   "Register property",
@@ -88,6 +89,19 @@ export default function Home() {
     setIsSubmitting(true);
 
     try {
+      const contract = await getPropertyRegistryContract();
+
+const tx = await contract.registerProperty(
+  formValues.propertyId,
+  title,
+  location,
+  Number(formValues.area),
+  Number(formValues.propertyType),
+  formValues.metadataURI
+);
+
+await tx.wait();
+
       const savedProperty = {
         id: `${Date.now()}`,
         title,
