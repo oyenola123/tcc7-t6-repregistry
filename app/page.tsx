@@ -126,7 +126,15 @@ try {
       setShowRegisterModal(false);
       setActiveView("Register property");
       setSelectedStep(0);
-      setFormValues({ title: "", owner: "", location: "", area: "620 sqm" });
+      setFormValues({
+  propertyId: "",
+  title: "",
+  owner: "",
+  location: "",
+  area: "620 sqm",
+  propertyType: "",
+  metadataURI: "",
+});
     } finally {
       setIsSubmitting(false);
     }
