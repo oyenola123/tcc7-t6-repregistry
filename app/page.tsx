@@ -91,16 +91,22 @@ export default function Home() {
     try {
       const contract = await getPropertyRegistryContract();
 
-const tx = await contract.registerProperty(
-  formValues.propertyId,
-  title,
-  location,
-  Number(formValues.area),
-  Number(formValues.propertyType),
-  formValues.metadataURI
-);
+try {
+  const tx = await contract.registerProperty(
+    formValues.propertyId,
+    title,
+    location,
+    Number(formValues.area),
+    Number(formValues.propertyType),
+    formValues.metadataURI
+  );
 
-await tx.wait();
+  await tx.wait();
+
+} catch (error) {
+  console.error(error);
+  return;
+}
 
       const savedProperty = {
         id: `${Date.now()}`,
@@ -194,11 +200,11 @@ await tx.wait();
 
           <div className="mt-10 border-t border-white/10 pt-4">
             <div className="mb-2 text-xs font-medium text-[#5B8770]">
-              Connected wallet
+              Wallet Connection
             </div>
             <div className="text-xs text-[#9CA79B]">
               <WalletConnect />
-              <RegisterPropertyForm />
+            
             </div>
           </div>
         </aside>
