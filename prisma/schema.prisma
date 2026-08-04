@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -52,17 +52,6 @@ model Attendance {
   date        DateTime
   hashProof   String?
   user      User @relation(fields: [userId], references: [id])
-}
-
-model Property {
-  id          String   @id @default(uuid())
-  title       String
-  owner       String
-  location    String
-  area        String
-  status      String   @default("Pending review")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 enum Role {
