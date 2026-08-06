@@ -68,6 +68,7 @@ constructor() {
     mapping(string => Property) private properties;
     mapping(string => bool) private propertyExists;
     mapping(address => string[]) private ownerProperties;
+    string[] private allPropertyIds;
     mapping(string => TransferRecord[]) private transferHistory;
 
       modifier onlyPropertyOwner(string memory propertyId) {
@@ -103,6 +104,7 @@ function registerProperty(
     p.metadataHash = metadataURI;
 
     propertyExists[propertyId] = true;
+    allPropertyIds.push(propertyId);
     ownerProperties[msg.sender].push(propertyId);
 
     emit PropertyRegistered(
@@ -179,6 +181,9 @@ function suspendProperty(
     if (!propertyExists[propertyId]) revert PropertyNotFound();
 
     properties[propertyId].status = PropertyStatus.Suspended;
+}
+ function getAllPropertyIds() public view returns (string[] memory) {
+    return allPropertyIds;
 }
 
 }
