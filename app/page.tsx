@@ -89,8 +89,9 @@ export default function Home() {
     setIsSubmitting(true);
 
     try {
-      const contract = await getPropertyRegistryContract();
+     const contract = await getPropertyRegistryContract();
 
+      
 try {
   const tx = await contract.registerProperty(
     formValues.propertyId,
