@@ -52,6 +52,9 @@ export default function Home() {
     "You can review each stage, switch sections, and register a new property."
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verificationPropertyId, setVerificationPropertyId] = useState("");
+  const [verificationResult, setVerificationResult] = useState<any>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [formValues, setFormValues] = useState({
   propertyId: "",
   title: "",
@@ -72,8 +75,55 @@ export default function Home() {
       status: "Under review",
     },
   ]);
+    
+    const handleVerifyProperty = async () => {
+  const propertyId = verificationPropertyId.trim();
 
-  const handleRegisterSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  if (!propertyId) {
+    setVerificationResult({
+      error: "Please enter a Property ID.",
+    });
+    return;
+  }
+
+  setIsVerifying(true);
+  setVerificationResult(null);
+
+  try {
+    const contract = await getPropertyRegistryContract();
+    const exists = await contract.propertyExistsById(propertyId);
+
+    if (!exists) {
+      setVerificationResult({
+        error: "Property not found on the blockchain.",
+      });
+      return;
+    }
+
+    const property = await contract.getProperty(propertyId);
+
+    setVerificationResult({
+      propertyId: property.propertyId,
+      title: property.title,
+      location: property.location,
+      size: property.size.toString(),
+      owner: property.owner,
+      registeredAt: new Date(
+        Number(property.registeredAt) * 1000
+      ).toLocaleString(),
+      status: property.status.toString(),
+      metadataHash: property.metadataHash,
+    });
+  } catch (error) {
+    console.error("Verification error:", error);
+    setVerificationResult({
+      error: "Unable to verify property. Please check the Property ID.",
+    });
+  } finally {
+    setIsVerifying(false);
+  }
+};
+    const handleRegisterSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const title = formValues.title.trim();
@@ -265,6 +315,99 @@ try {
             </div>
           ) : null}
 
+  
+   {activeView === "Verification queue" ? (
+  <div className="mb-7 rounded-xl border border-white/10 bg-[#16241C] p-6">
+    <div className="mb-5">
+      <h2 className="text-lg font-semibold text-[#F3EEDD]">
+        Verify Property
+      </h2>
+      <p className="mt-1 text-sm text-[#9CA79B]">
+        Enter a Property ID to verify its registration directly from the blockchain.
+      </p>
+    </div>
+
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <input
+        value={verificationPropertyId}
+        onChange={(event) =>
+          setVerificationPropertyId(event.target.value)
+        }
+        className="flex-1 rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+        placeholder="Enter Property ID"
+      />
+
+      <button
+        type="button"
+        onClick={handleVerifyProperty}
+        disabled={isVerifying}
+        className="rounded-md bg-[#C1863E] px-5 py-2 text-sm font-semibold text-[#241505] disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {isVerifying ? "Verifying..." : "Verify Property"}
+      </button>
+    </div>
+
+    {verificationResult ? (
+      <div className="mt-5 rounded-lg border border-white/10 bg-[#1C2C22] p-4">
+        {verificationResult.error ? (
+          <div className="text-sm text-red-300">
+            {verificationResult.error}
+          </div>
+        ) : (
+          <div className="space-y-3 text-sm">
+            <div className="text-[#5B8770] font-medium">
+              ✓ Property verified on blockchain
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <div className="text-xs text-[#9CA79B]">Property ID</div>
+                <div className="text-[#F3EEDD]">
+                  {verificationResult.propertyId}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-[#9CA79B]">Title</div>
+                <div className="text-[#F3EEDD]">
+                  {verificationResult.title}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-[#9CA79B]">Location</div>
+                <div className="text-[#F3EEDD]">
+                  {verificationResult.location}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-[#9CA79B]">Owner</div>
+                <div className="font-mono text-xs text-[#F3EEDD]">
+                  {verificationResult.owner}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-[#9CA79B]">Area</div>
+                <div className="text-[#F3EEDD]">
+                  {verificationResult.size} sqm
+                </div>
+              </div>
+
+              <div>
+                <div className="text-xs text-[#9CA79B]">Registered</div>
+                <div className="text-[#F3EEDD]">
+                  {verificationResult.registeredAt}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    ) : null}
+  </div>
+) : null}
           <div className="grid gap-7 lg:grid-cols-[1.15fr_0.85fr]">
             <section className="rounded-xl border border-white/10 bg-[#16241C] p-6 shadow-sm">
               <div className="mb-5 text-[11px] uppercase tracking-[0.2em] text-[#9CA79B]">
