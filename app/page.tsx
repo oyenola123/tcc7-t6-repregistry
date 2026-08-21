@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import WalletConnect from "@/components/WalletConnect";
 import RegisterPropertyForm from "@/components/RegisterPropertyForm";
+import { ethers } from "ethers";
 import { getPropertyRegistryContract } from "@/lib/contract";
 
 const navItems = [
@@ -55,6 +56,12 @@ export default function Home() {
   const [verificationPropertyId, setVerificationPropertyId] = useState("");
   const [verificationResult, setVerificationResult] = useState<any>(null);
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const [transferPropertyId, setTransferPropertyId] = useState("");
+  const [newOwnerAddress, setNewOwnerAddress] = useState("");
+  const [transferResult, setTransferResult] = useState<any>(null);
+  const [isTransferring, setIsTransferring] = useState(false);
+
   const [formValues, setFormValues] = useState({
   propertyId: "",
   title: "",
@@ -121,6 +128,49 @@ export default function Home() {
     });
   } finally {
     setIsVerifying(false);
+  }
+};
+   const handleTransferOwnership = async () => {
+  const propertyId = transferPropertyId.trim();
+  const newOwner = newOwnerAddress.trim();
+
+  if (!propertyId || !newOwner) {
+    setTransferResult({
+      error: "Please enter the Property ID and new owner's wallet address.",
+    });
+    return;
+  }
+
+  if (!ethers.isAddress(newOwner)) {
+    setTransferResult({
+      error: "Please enter a valid Ethereum wallet address.",
+    });
+    return;
+  }
+
+  setIsTransferring(true);
+  setTransferResult(null);
+
+  try {
+    const contract = await getPropertyRegistryContract();
+
+    const tx = await contract.transferOwnership(propertyId, newOwner);
+
+    await tx.wait();
+
+    setTransferResult({
+      success: true,
+      propertyId,
+      newOwner,
+      message: "Ownership transferred successfully on the blockchain.",
+    });
+  } catch (error) {
+    console.error("Transfer ownership error:", error);
+    setTransferResult({
+      error: "Unable to transfer ownership. Please check the Property ID, wallet address, and current ownership.",
+    });
+  } finally {
+    setIsTransferring(false);
   }
 };
     const handleRegisterSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -315,7 +365,6 @@ try {
             </div>
           ) : null}
 
-  
    {activeView === "Verification queue" ? (
   <div className="mb-7 rounded-xl border border-white/10 bg-[#16241C] p-6">
     <div className="mb-5">
@@ -401,6 +450,84 @@ try {
                   {verificationResult.registeredAt}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+      </div>
+    ) : null}
+  </div>
+) : null}
+
+   {activeView === "Transfers" ? (
+  <div className="mb-7 rounded-xl border border-white/10 bg-[#16241C] p-6">
+    <div className="mb-5">
+      <h2 className="text-lg font-semibold text-[#F3EEDD]">
+        Transfer Ownership
+      </h2>
+      <p className="mt-1 text-sm text-[#9CA79B]">
+        Transfer a registered property's ownership to another wallet address.
+      </p>
+    </div>
+
+    <div className="space-y-4">
+      <div>
+        <label className="mb-1 block text-sm text-[#9CA79B]">
+          Property ID
+        </label>
+        <input
+          value={transferPropertyId}
+          onChange={(event) =>
+            setTransferPropertyId(event.target.value)
+          }
+          className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+          placeholder="Enter Property ID"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm text-[#9CA79B]">
+          New Owner Wallet Address
+        </label>
+        <input
+          value={newOwnerAddress}
+          onChange={(event) =>
+            setNewOwnerAddress(event.target.value)
+          }
+          className="w-full rounded-md border border-white/10 bg-[#0F1B14] px-3 py-2 text-sm text-[#F3EEDD]"
+          placeholder="0x..."
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={handleTransferOwnership}
+        disabled={isTransferring}
+        className="rounded-md bg-[#C1863E] px-5 py-2 text-sm font-semibold text-[#241505] disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {isTransferring ? "Transferring..." : "Transfer Ownership"}
+      </button>
+    </div>
+
+    {transferResult ? (
+      <div className="mt-5 rounded-lg border border-white/10 bg-[#1C2C22] p-4">
+        {transferResult.error ? (
+          <div className="text-sm text-red-300">
+            {transferResult.error}
+          </div>
+        ) : (
+          <div className="space-y-2 text-sm">
+            <div className="font-medium text-[#5B8770]">
+              ✓ Ownership transferred successfully
+            </div>
+            <div>
+              <span className="text-[#9CA79B]">Property ID: </span>
+              {transferResult.propertyId}
+            </div>
+            <div>
+              <span className="text-[#9CA79B]">New Owner: </span>
+              <span className="font-mono text-xs">
+                {transferResult.newOwner}
+              </span>
             </div>
           </div>
         )}
